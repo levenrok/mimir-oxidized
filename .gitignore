@@ -1,0 +1,9 @@
+# build artifacts
+/target
+/result
+
+# sqlite
+*.sqlite*
+
+# direnv
+/.direnv
