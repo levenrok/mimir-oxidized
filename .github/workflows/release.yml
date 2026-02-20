@@ -34,3 +34,4 @@ jobs:
         with:
           executable-name: mimir
           target: ${{ matrix.platform.target }}
+          changes-file: CHANGELOG.md
