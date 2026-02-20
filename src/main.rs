@@ -1,5 +1,7 @@
 use clap::Parser;
 
+mod database;
+
 #[derive(Parser)]
 #[command(version, about)]
 struct Args {
@@ -19,4 +21,16 @@ struct Args {
 #[tokio::main]
 async fn main() {
     _ = Args::parse();
+
+    let conn = database::Database::open_database("db.sqlite3").await;
+
+    let db = match conn {
+        Ok(conn) => conn,
+        Err(err) => {
+            eprintln!("{}", err);
+            std::process::exit(1);
+        }
+    };
+
+    db.close_database().await;
 }
