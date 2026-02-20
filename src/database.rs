@@ -22,6 +22,16 @@ impl Database {
         })
     }
 
+    pub async fn init_database(&self) -> Result<(), Box<dyn Error>> {
+        sqlx::query("PRAGMA journal_mode = WAL;")
+            .execute(&self.db)
+            .await?;
+
+        sqlx::migrate!().run(&self.db).await?;
+
+        Ok(())
+    }
+
     pub async fn close_database(&self) -> () {
         self.db.close().await
     }
