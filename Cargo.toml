@@ -8,6 +8,7 @@ license = "CC0-1.0"
 
 [dependencies]
 clap = { version = "4.5.59", features = ["derive"] }
+clap_complete = "4.5.66"
 sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite", "tls-rustls"] }
 tokio = { version = "1.49.0", features = ["full"] }
 
