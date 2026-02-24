@@ -4,6 +4,13 @@ use clap_complete::{Shell, generate};
 mod database;
 use database::Database;
 
+macro_rules! print_err_exit {
+    ($err: expr) => {
+        eprintln!("\x1b[33m{}\x1b[0m", $err);
+        std::process::exit(1);
+    };
+}
+
 #[derive(Parser)]
 #[command(version, about)]
 struct Args {
@@ -45,16 +52,14 @@ async fn main() {
     let db = match conn {
         Ok(conn) => conn,
         Err(err) => {
-            eprintln!("{}", err);
-            std::process::exit(1);
+            print_err_exit!(err);
         }
     };
 
     match db.init_database().await {
         Ok(()) => {}
         Err(err) => {
-            eprintln!("{}", err);
-            std::process::exit(1);
+            print_err_exit!(err);
         }
     };
 
