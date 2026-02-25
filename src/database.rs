@@ -47,6 +47,18 @@ impl Database {
         Ok(())
     }
 
+    pub async fn select_script(&self, name: &String) -> Result<Option<Script>, Box<dyn Error>> {
+        let script = sqlx::query_as!(
+            Script,
+            r#"SELECT name, content as "content!", shebang FROM scripts WHERE name = $1;"#,
+            name
+        )
+        .fetch_optional(&self.db)
+        .await?;
+
+        Ok(script)
+    }
+
     pub async fn close_database(&self) -> () {
         self.db.close().await
     }
