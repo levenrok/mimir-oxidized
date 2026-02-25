@@ -59,6 +59,17 @@ impl Database {
         Ok(script)
     }
 
+    pub async fn select_scripts(&self) -> Result<Vec<Script>, Box<dyn Error>> {
+        let scripts = sqlx::query_as!(
+            Script,
+            r#"SELECT name, content as "content!", shebang FROM scripts;"#,
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        Ok(scripts)
+    }
+
     pub async fn close_database(&self) -> () {
         self.db.close().await
     }
