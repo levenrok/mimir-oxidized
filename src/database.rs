@@ -3,7 +3,12 @@ use std::error::Error;
 
 pub struct Database {
     db: Pool<Sqlite>,
-    path: String,
+}
+
+pub struct Script {
+    pub name: String,
+    pub content: String,
+    pub shebang: Option<String>,
 }
 
 impl Database {
@@ -16,10 +21,7 @@ impl Database {
         let url = format!("sqlite:{}", path);
         let pool = sqlite::SqlitePool::connect(&url).await?;
 
-        Ok(Database {
-            db: pool,
-            path: String::from(path),
-        })
+        Ok(Database { db: pool })
     }
 
     pub async fn init_database(&self) -> Result<(), Box<dyn Error>> {
@@ -28,6 +30,19 @@ impl Database {
             .await?;
 
         sqlx::migrate!().run(&self.db).await?;
+
+        Ok(())
+    }
+
+    pub async fn insert_script(&self, script: &Script) -> Result<(), Box<dyn Error>> {
+        sqlx::query!(
+            "INSERT INTO scripts (name, content, shebang) VALUES ($1, $2, $3);",
+            script.name,
+            script.content,
+            script.shebang
+        )
+        .execute(&self.db)
+        .await?;
 
         Ok(())
     }
