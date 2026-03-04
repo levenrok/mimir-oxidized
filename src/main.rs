@@ -6,8 +6,26 @@ use database::Database;
 
 macro_rules! print_err_exit {
     ($err: expr) => {
-        eprintln!("\x1b[33m{}\x1b[0m", $err);
+        eprintln!("\x1b[31m{}\x1b[0m", $err);
         std::process::exit(1);
+    };
+}
+
+macro_rules! match_or_err_exit {
+    ($condition: expr) => {
+        match $condition {
+            Ok(v) => v,
+            Err(e) => {
+                print_err_exit!(e);
+            }
+        }
+    };
+
+    ($condition: expr, $fallback: block) => {
+        match $condition {
+            Ok(v) => v,
+            Err(_) => $fallback,
+        }
     };
 }
 
@@ -49,19 +67,13 @@ async fn main() {
 
     let conn = Database::open_database("db.sqlite3").await;
 
-    let db = match conn {
-        Ok(conn) => conn,
-        Err(err) => {
-            print_err_exit!(err);
-        }
-    };
+    let db = match_or_err_exit!(conn);
 
-    match db.init_database().await {
-        Ok(()) => {}
-        Err(err) => {
-            print_err_exit!(err);
+    match_or_err_exit!(db.init_database().await);
+
         }
-    };
+
+        }
 
     db.close_database().await;
 }
