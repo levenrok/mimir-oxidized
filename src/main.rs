@@ -3,6 +3,7 @@ use clap_complete::{Shell, generate};
 
 mod database;
 use database::Database;
+use tempfile::NamedTempFile;
 
 macro_rules! print_err_exit {
     ($err: expr) => {
@@ -68,6 +69,11 @@ async fn main() {
     let conn = Database::open_database("db.sqlite3").await;
 
     let db = match_or_err_exit!(conn);
+
+    let editor = match_or_err_exit!(std::env::var("EDITOR"), {
+        eprintln!("\x1b[33mEDITOR not set. falling back to 'nano'...\x1b[0m");
+        String::from("nano")
+    });
 
     match_or_err_exit!(db.init_database().await);
 
