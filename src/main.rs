@@ -1,8 +1,9 @@
 use clap::{CommandFactory, Parser};
 use clap_complete::{Shell, generate};
+use std::process::Command;
 
 mod database;
-use database::Database;
+use database::{Database, Script};
 use tempfile::NamedTempFile;
 
 macro_rules! print_err_exit {
@@ -27,6 +28,17 @@ macro_rules! match_or_err_exit {
             Ok(v) => v,
             Err(_) => $fallback,
         }
+    };
+}
+
+macro_rules! print_script {
+    ($script: ident) => {
+        println!("---");
+        println!("\x1b[1mname:\x1b[0m {}", $script.name);
+        if let Some(shebang) = &$script.shebang {
+            println!("\x1b[1mshebang:\x1b[0m {}", shebang);
+        }
+        println!("\x1b[1mcontent:\x1b[0m {}", $script.content);
     };
 }
 
@@ -77,9 +89,48 @@ async fn main() {
 
     match_or_err_exit!(db.init_database().await);
 
+    if let Some(name) = args.create {
+        match db.select_script(&name).await {
+            Ok(script) => match script {
+                Some(_) => {
+                    print_err_exit!(format!("Script named '{}' already exists!", name));
+                }
+                None => {}
+            },
+            Err(_) => {}
         }
 
+        let path = match NamedTempFile::new() {
+            Ok(temp) => String::from(temp.path().to_str().unwrap()),
+            Err(err) => {
+                print_err_exit!(err);
+            }
+        };
+
+        let mut child = Command::new(editor)
+            .arg(&path)
+            .spawn()
+            .expect("error: failed to spawn child process!");
+        match_or_err_exit!(child.wait());
+
+        let content =
+            match_or_err_exit!(tokio::fs::read_to_string(path).await, { String::from("") });
+
+        let script = Script {
+            name: name.trim().to_string(),
+            content: content.trim().to_string(),
+            shebang: args.shebang,
+        };
+
+        match db.insert_script(&script).await {
+            Ok(()) => {
+                print_script!(script);
+            }
+            Err(err) => {
+                print_err_exit!(err);
+            }
         }
+    }
 
     db.close_database().await;
 }
