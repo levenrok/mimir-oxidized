@@ -132,5 +132,21 @@ async fn main() {
         }
     }
 
+    if args.list {
+        let scripts = db.select_scripts().await;
+
+        match scripts {
+            Ok(rows) => {
+                rows.iter().for_each(|script| {
+                    print_script!(script);
+                    println!();
+                });
+            }
+            Err(err) => {
+                print_err_exit!(err);
+            }
+        }
+    }
+
     db.close_database().await;
 }
