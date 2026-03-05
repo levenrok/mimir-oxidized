@@ -148,5 +148,17 @@ async fn main() {
         }
     }
 
+    if let Some(name) = args.show {
+        let script = match_or_err_exit!(db.select_script(&name).await);
+        match script {
+            Some(script) => {
+                print_script!(script);
+            }
+            None => {
+                print_err_exit!(format!("No script named '{}' found!", name));
+            }
+        }
+    }
+
     db.close_database().await;
 }
