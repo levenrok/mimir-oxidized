@@ -27,3 +27,64 @@ pub fn pretty_print<W: Write>(writer: &mut W, msg: &str, kind: Kind) {
     }
     writeln!(writer, "┘\x1b[0m").unwrap();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pretty_print_success() {
+        let mut buffer = Vec::new();
+        pretty_print(&mut buffer, "This is a success message!", Kind::SUCCESS);
+
+        let output = String::from_utf8(buffer).unwrap();
+        assert_eq!(
+            output,
+            "\x1b[32m┌──────────────────────────┐\x1b[0m\n\
+             \x1b[32m│This is a success message!│\x1b[0m\n\
+             \x1b[32m└──────────────────────────┘\x1b[0m\n",
+        );
+    }
+
+    #[test]
+    fn pretty_print_info() {
+        let mut buffer = Vec::new();
+        pretty_print(&mut buffer, "This is a info message!", Kind::INFO);
+
+        let output = String::from_utf8(buffer).unwrap();
+        assert_eq!(
+            output,
+            "\x1b[34m┌───────────────────────┐\x1b[0m\n\
+             \x1b[34m│This is a info message!│\x1b[0m\n\
+             \x1b[34m└───────────────────────┘\x1b[0m\n",
+        );
+    }
+
+    #[test]
+    fn pretty_print_warning() {
+        let mut buffer = Vec::new();
+        pretty_print(&mut buffer, "This is a warning message!", Kind::WARNING);
+
+        let output = String::from_utf8(buffer).unwrap();
+        assert_eq!(
+            output,
+            "\x1b[33m┌──────────────────────────┐\x1b[0m\n\
+             \x1b[33m│This is a warning message!│\x1b[0m\n\
+             \x1b[33m└──────────────────────────┘\x1b[0m\n",
+        );
+    }
+
+    #[test]
+    fn pretty_print_error() {
+        let mut buffer = Vec::new();
+        pretty_print(&mut buffer, "This is a error message!", Kind::ERROR);
+
+        let output = String::from_utf8(buffer).unwrap();
+        assert_eq!(
+            output,
+            "\x1b[31m┌────────────────────────┐\x1b[0m\n\
+             \x1b[31m│This is a error message!│\x1b[0m\n\
+             \x1b[31m└────────────────────────┘\x1b[0m\n",
+        );
+    }
+}
