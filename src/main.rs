@@ -6,11 +6,11 @@ use tempfile::NamedTempFile;
 mod database;
 mod utils;
 use database::{Database, Script};
-use utils::print_fmt_err;
+use utils::{Kind, pretty_print};
 
 macro_rules! print_err_exit {
     ($err: expr) => {
-        print_fmt_err(&$err.to_string());
+        pretty_print(&mut std::io::stderr(), &$err.to_string(), Kind::ERROR);
         std::process::exit(1);
     };
 }

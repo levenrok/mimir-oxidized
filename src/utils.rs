@@ -1,13 +1,29 @@
-pub fn print_fmt_err(err: &str) {
-    eprint!("\x1b[31m┌");
-    for _i in 0..err.len() {
-        eprint!("─");
+use std::io::Write;
+
+pub enum Kind {
+    SUCCESS,
+    INFO,
+    WARNING,
+    ERROR,
+}
+
+pub fn pretty_print<W: Write>(writer: &mut W, msg: &str, kind: Kind) {
+    let colour = match kind {
+        Kind::SUCCESS => "\x1b[32m",
+        Kind::INFO => "\x1b[34m",
+        Kind::WARNING => "\x1b[33m",
+        Kind::ERROR => "\x1b[31m",
+    };
+
+    write!(writer, "{}┌", colour).unwrap();
+    for _i in 0..msg.len() {
+        write!(writer, "─").unwrap();
     }
-    eprintln!("┐\x1b[0m");
-    eprintln!("\x1b[31m│{}│\x1b[0m", err);
-    eprint!("\x1b[31m└");
-    for _i in 0..err.len() {
-        eprint!("─");
+    writeln!(writer, "┐\x1b[0m").unwrap();
+    writeln!(writer, "{}│{}│\x1b[0m", colour, msg).unwrap();
+    write!(writer, "{}└", colour).unwrap();
+    for _i in 0..msg.len() {
+        write!(writer, "─").unwrap();
     }
-    eprintln!("┘\x1b[0m");
+    writeln!(writer, "┘\x1b[0m").unwrap();
 }
