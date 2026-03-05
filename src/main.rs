@@ -1,14 +1,16 @@
 use clap::{CommandFactory, Parser};
 use clap_complete::{Shell, generate};
 use std::process::Command;
+use tempfile::NamedTempFile;
 
 mod database;
+mod utils;
 use database::{Database, Script};
-use tempfile::NamedTempFile;
+use utils::print_fmt_err;
 
 macro_rules! print_err_exit {
     ($err: expr) => {
-        eprintln!("\x1b[31m{}\x1b[0m", $err);
+        print_fmt_err(&$err.to_string());
         std::process::exit(1);
     };
 }
