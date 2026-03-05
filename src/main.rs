@@ -90,19 +90,19 @@ async fn main() {
     match_or_err_exit!(db.init_database().await);
 
     if let Some(name) = args.create {
-        match db.select_script(&name).await {
-            Ok(script) => match script {
-                Some(_) => {
-                    print_err_exit!(format!("Script named '{}' already exists!", name));
-                }
-                None => {}
-            },
-            Err(_) => {}
+        let script = match_or_err_exit!(db.select_script(&name).await);
+        match script {
+            Some(_) => {
+                db.close_database().await;
+                print_err_exit!(format!("Script named '{}' already exists!", name));
+            }
+            None => {}
         }
 
         let path = match NamedTempFile::new() {
             Ok(temp) => String::from(temp.path().to_str().unwrap()),
             Err(err) => {
+                db.close_database().await;
                 print_err_exit!(err);
             }
         };
@@ -127,6 +127,7 @@ async fn main() {
                 print_script!(script);
             }
             Err(err) => {
+                db.close_database().await;
                 print_err_exit!(err);
             }
         }
@@ -143,6 +144,7 @@ async fn main() {
                 });
             }
             Err(err) => {
+                db.close_database().await;
                 print_err_exit!(err);
             }
         }
@@ -155,6 +157,7 @@ async fn main() {
                 print_script!(script);
             }
             None => {
+                db.close_database().await;
                 print_err_exit!(format!("No script named '{}' found!", name));
             }
         }
