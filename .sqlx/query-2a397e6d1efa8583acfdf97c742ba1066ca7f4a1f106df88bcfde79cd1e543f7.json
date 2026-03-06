@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT name, content as \"content!\", shebang FROM scripts;",
+  "describe": {
+    "columns": [
+      {
+        "name": "name",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "content!",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "shebang",
+        "ordinal": 2,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "2a397e6d1efa8583acfdf97c742ba1066ca7f4a1f106df88bcfde79cd1e543f7"
+}
