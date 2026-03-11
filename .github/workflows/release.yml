@@ -2,11 +2,13 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   release:
     name: Release - ${{ matrix.platform.os_name }}
+    permissions:
+      contents: write
     strategy:
       matrix:
         platform:
