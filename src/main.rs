@@ -3,10 +3,13 @@ use clap_complete::{Shell, generate};
 use std::process::Command;
 use tempfile::NamedTempFile;
 
+mod boot;
 mod database;
 mod utils;
 use database::{Database, Script};
 use utils::{Kind, pretty_print};
+
+use crate::boot::bootloader;
 
 macro_rules! print_err_exit {
     ($err: expr) => {
@@ -80,7 +83,9 @@ async fn main() {
         return;
     }
 
-    let conn = Database::open_database("db.sqlite3").await;
+    let info = match_or_err_exit!(bootloader().await);
+
+    let conn = Database::open_database(&info.db_path).await;
 
     let db = match_or_err_exit!(conn);
 
